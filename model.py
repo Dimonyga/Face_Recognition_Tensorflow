@@ -1,7 +1,7 @@
 from tensorflow.keras import models
 from tensorflow.keras.layers import ZeroPadding2D, MaxPooling2D, Conv2D, Flatten, Dense, Dropout
 
-def get_model():
+def get_model(classes):
     model = models.Sequential()
     model.add(ZeroPadding2D((1,1),input_shape=(224,224, 3)))
     model.add(Conv2D(64, (3, 3), activation='relu'))
@@ -45,7 +45,7 @@ def get_model():
     model.add(Dropout(0.5))
     model.add(Conv2D(2622, (1, 1)))
     model.add(Flatten())
-    model.add(Dense(3, activation='softmax'))
+    model.add(Dense(classes, activation='softmax'))
     return model
 
 

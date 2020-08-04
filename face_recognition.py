@@ -1,7 +1,8 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from model import get_model
+from model_interception_resnet_v2 import get_model
+import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import optimizers
@@ -14,13 +15,23 @@ class FaceRecognition:
     def __init__(self):
         self.TRAINING_DATA_DIRECTORY = "./dataset/training"
         self.TESTING_DATA_DIRECTORY = "./dataset/testing"
+        self.CLASSES = 0
+        i=0
+        for f in os.listdir(self.TRAINING_DATA_DIRECTORY):
+            self.CLASSES +=1
+            for n in os.listdir(self.TRAINING_DATA_DIRECTORY+'/'+f):
+                i += 1
+        j=0
+        for f in os.listdir(self.TESTING_DATA_DIRECTORY):
+            for n in os.listdir(self.TESTING_DATA_DIRECTORY+'/'+f):
+                j += 1
         self.EPOCHS = 50
         self.BATCH_SIZE = 32
-        self.NUMBER_OF_TRAINING_IMAGES = 320
-        self.NUMBER_OF_TESTING_IMAGES = 196
+        self.NUMBER_OF_TRAINING_IMAGES = i
+        self.NUMBER_OF_TESTING_IMAGES = j
         self.IMAGE_HEIGHT = 224
         self.IMAGE_WIDTH = 224
-        self.model = get_model()
+        self.model = get_model(self.CLASSES)
         self.training_generator = None
 
     @staticmethod
@@ -64,20 +75,19 @@ class FaceRecognition:
             target_size=(self.IMAGE_WIDTH, self.IMAGE_HEIGHT),
             class_mode='categorical'
         )
-
         self.model.compile(
             loss='categorical_crossentropy',
             optimizer=optimizers.SGD(lr=1e-4, momentum=0.9, decay=1e-2 / self.EPOCHS),
             metrics=["accuracy"]
         )
-
-        history = self.model.fit_generator(
+        history = self.model.fit(
             self.training_generator,
             steps_per_epoch=self.NUMBER_OF_TRAINING_IMAGES//self.BATCH_SIZE,
             epochs=self.EPOCHS,
             validation_data=testing_generator,
             shuffle=True,
-            validation_steps=self.NUMBER_OF_TESTING_IMAGES//self.BATCH_SIZE
+            validation_steps=self.NUMBER_OF_TESTING_IMAGES//self.BATCH_SIZE,
+            workers=2
         )
 
         FaceRecognition.plot_training(history)
