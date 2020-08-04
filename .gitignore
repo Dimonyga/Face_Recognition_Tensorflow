@@ -1,3 +1,7 @@
 __pycache__/
+.DS_Store
 .idea/*
-model/
+model/*
+dataset/*
+peeople/*
+plot/*
