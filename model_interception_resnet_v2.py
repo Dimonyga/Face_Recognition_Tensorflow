@@ -6,6 +6,7 @@ def get_model(classes):
         model = tf.keras.applications.InceptionResNetV2(
 #            include_top=False,
             classes=classes,
+            input_shape=(224,224,3)
             weights=None)
     return model
 

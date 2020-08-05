@@ -1,6 +1,7 @@
 from multiprocessing import Process, Queue, cpu_count
 from os.path import join, exists, basename
 from os import makedirs, listdir, environ, rename
+import json
 import time
 import glob
 import cv2
@@ -76,6 +77,15 @@ def process_people(person):
                 continue
             else:
                 results = rres
+        # if confidence < 95% - try to rotate and check again
+        if results[0]['confidence'] < 0.95:
+            rimg = cv2.rotate(img, cv2.cv2.ROTATE_90_CLOCKWISE)
+            rres = detector.detect_faces(rimg)
+            if rres:
+                # if new confidence higher then prev - use new
+                if results[0]['confidence'] < rres[0]['confidence']:
+                    img=rimg
+                    results=rres
 
         x, y, width, height = results[0]['box']
         face = img[y:y + height, x:x + width]
@@ -89,6 +99,8 @@ def process_people(person):
         persondir=join('full',person)
         if not exists(join(cropped_folder, persondir)):
            mkdir(join(cropped_folder,persondir))
+#        with open(join(cropped_folder, persondir, output_file_name + '.txt'), 'w') as f:
+#            f.write(json.dumps(results))
         cv2.imwrite(
             join(cropped_folder, persondir, output_file_name),
             face_array)
