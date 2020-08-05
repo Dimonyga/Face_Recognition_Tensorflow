@@ -25,7 +25,7 @@ class FaceRecognition:
         for f in os.listdir(self.TESTING_DATA_DIRECTORY):
             for n in os.listdir(self.TESTING_DATA_DIRECTORY+'/'+f):
                 j += 1
-        self.EPOCHS = 50
+        self.EPOCHS = 100
         self.BATCH_SIZE = 32
         self.NUMBER_OF_TRAINING_IMAGES = i
         self.NUMBER_OF_TESTING_IMAGES = j
